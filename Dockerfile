@@ -1,11 +1,22 @@
-FROM ruby:2.5
-RUN apt-get update -qq && apt-get install -y nodejs postgresql-client
-RUN mkdir /myapp
-WORKDIR /myapp
-COPY Gemfile /myapp/Gemfile
-COPY Gemfile.lock /myapp/Gemfile.lock
+FROM ruby:2.6-rc
+RUN apt-get update &&\
+    # add support to unicode chars from keyboard: ç,ã,ô:
+    apt-get install -y locales &&\
+    echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && /usr/sbin/locale-gen &&\
+    rm -rf /var/lib/apt/lists/*
+ENV LANG en_US.UTF-8
+RUN apt-get update -qq && apt-get install -y postgresql-client
+RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - \
+        && apt-get install -y nodejs
+
+ENV APP_HOME /myapp
+
+RUN mkdir $APP_HOME
+WORKDIR $APP_HOME
+COPY Gemfile $APP_HOME/Gemfile
+COPY Gemfile.lock $APP_HOME/Gemfile.lock
 RUN bundle install
-COPY . /myapp
+COPY . $APP_HOME
 
 # Add a script to be executed every time the container starts.
 COPY entrypoint.sh /usr/bin/
