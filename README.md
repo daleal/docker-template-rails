@@ -35,12 +35,12 @@ This repository serves as an educational docker template over which to build a r
 
     development:
       <<: *default
-      database: myapp_development
+      database: ENV["APP_HOME"]_development
 
 
     test:
       <<: *default
-      database: myapp_test
+      database: ENV["APP_HOME"]_test
     ```
 
 - Create the database:
